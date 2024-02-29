@@ -3,11 +3,11 @@ type: kubernetes
 endpoint_name: demo-sklearn-endpoint
 app_insights_enabled: true
 model: 
-  path: model/sklearn_regression_model.pkl
+  path: model/sklearn_mnist_model.pkl
 code_configuration:
   code: script/
   scoring_script: score.py
-instance_type: defaultinstancetype
+instance_type: demo-sklearn-instance-type
 environment:
   image: mcr.microsoft.com/azureml/openmpi4.1.0-ubuntu20.04
   conda_file: model/conda.yml

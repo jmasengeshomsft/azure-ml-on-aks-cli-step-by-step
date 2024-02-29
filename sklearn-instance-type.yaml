@@ -1,0 +1,14 @@
+apiVersion: amlarc.azureml.com/v1alpha1
+kind: InstanceType
+metadata:
+  name: demo-sklearn-instance-type
+spec:
+  nodeSelector:
+    purpose: ml-sklearn-demo
+  resources:
+    limits:
+      cpu: "1"
+      memory: "1Gi"
+    requests:
+      cpu: "500m"
+      memory: "500Mi"
