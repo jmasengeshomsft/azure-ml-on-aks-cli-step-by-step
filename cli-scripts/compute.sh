@@ -1,5 +1,5 @@
 
-NAME="demo-sklearn"
+COMPUTE_NAME="demo-sklearn"
 RESOURCE_GROUP_NAME="aks-demos"
 WORKSPACE_NAME="jm-ml"
 CLUSTER_NAME="llama2-aks"
@@ -26,7 +26,7 @@ az k8s-extension create --name azureml \
 az ml compute attach --resource-group $RESOURCE_GROUP_NAME \
                      --workspace-name $WORKSPACE_NAME \
                      --type Kubernetes \
-                     --name $NAME \
+                     --name $COMPUTE_NAME \
                      --resource-id $CLUSTER_RESOURCE_ID \
                      --identity-type SystemAssigned \
                      --namespace $NAMESPACE \
