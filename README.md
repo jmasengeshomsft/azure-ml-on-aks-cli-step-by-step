@@ -4,19 +4,35 @@ A repo that shows how to deploy your first ML model on Azure Kubernetes Service.
 ## Initializing Variables ##
 
 ```
-NAME="demo-sklearn"
+COMPUTE_NAME="demo-k8s-compute"
 RESOURCE_GROUP_NAME="aks-demos"
 WORKSPACE_NAME="jm-ml"
-CLUSTER_NAME="llama2-aks"
+CLUSTER_NAME="ml-sklearn-demo"
 NAMESPACE="azureml-workloads"
 CLUSTER_RESOURCE_ID=$(az aks show -n $CLUSTER_NAME -g $RESOURCE_GROUP_NAME  --query id --output tsv)
-
+NODE_POOL_NAME="sklearnpool"
+NODE_POOL_LABEL="purpose=ml-sklearn-demo"
+NODE_COUNT=2  # Change as needed
+VM_SIZE="Standard_D4ds_v5"  
+MAX_PODS=110  # Change as needed
 ENDPOINT_NAME="demo-sklearn-endpoint"
 ENDPOINT_YAML_FILE="kubernetes-endpoint.yml"
 DEPLOYMENT_NAME="demo-sklearn-deployment"
 DEPLOYMENT_YAML_FILE="kubernetes-deployment.yml"
 ```
 
+## Add AKS Node Pool ##
+
+```
+az aks nodepool add \
+    --resource-group $RESOURCE_GROUP_NAME \
+    --cluster-name $CLUSTER_NAME \
+    --name $NODE_POOL_NAME \
+    --node-count $NODE_COUNT \
+    --node-vm-size $VM_SIZE \
+    --max-pods $MAX_PODS \
+    --labels $NODE_POOL_LABEL
+```
 
 ## Azure ML Kubernetes Extension ##
 ```
@@ -26,7 +42,9 @@ az k8s-extension create --name azureml \
                        --cluster-name $CLUSTER_NAME \
                        --resource-group $RESOURCE_GROUP_NAME \
                        --scope cluster \
-                       --config installPromOp=False enableTraining=True enableInference=True inferenceRouterServiceType=loadBalancer internalLoadBalancerProvider=azure allowInsecureConnections=True inferenceRouterHA=False nginxIngress.controller="k8s.io/aml-ingress-nginx"
+                       --config nodeSelector.purpose=ml-sklearn-demo installPromOp=False enableTraining=True enableInference=True inferenceRouterServiceType=loadBalancer internalLoadBalancerProvider=azure allowInsecureConnections=True inferenceRouterHA=False nginxIngress.controller="k8s.io/aml-ingress-nginx" 
+
+
 ```
 
 ## Attaching Kubernetes Compute Target ##
@@ -35,7 +53,7 @@ az k8s-extension create --name azureml \
 az ml compute attach --resource-group $RESOURCE_GROUP_NAME \
                      --workspace-name $WORKSPACE_NAME \
                      --type Kubernetes \
-                     --name $NAME \
+                     --name $COMPUTE_NAME \
                      --resource-id $CLUSTER_RESOURCE_ID \
                      --identity-type SystemAssigned \
                      --namespace $NAMESPACE \
