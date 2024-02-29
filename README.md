@@ -1,6 +1,8 @@
 # azure-ml-on-aks-cli-step-by-step
 A repo that shows how to deploy your first ML model on Azure Kubernetes Service.
 
+## Initializing Variables ##
+
 ```
 NAME="demo-sklearn"
 RESOURCE_GROUP_NAME="aks-demos"
@@ -15,8 +17,8 @@ DEPLOYMENT_NAME="demo-sklearn-deployment"
 DEPLOYMENT_YAML_FILE="kubernetes-deployment.yml"
 ```
 
----Extension---
 
+## Azure ML Kubernetes Extension ##
 ```
 az k8s-extension create --name azureml \
                        --extension-type Microsoft.AzureML.Kubernetes \
@@ -27,7 +29,8 @@ az k8s-extension create --name azureml \
                        --config installPromOp=False enableTraining=True enableInference=True inferenceRouterServiceType=loadBalancer internalLoadBalancerProvider=azure allowInsecureConnections=True inferenceRouterHA=False nginxIngress.controller="k8s.io/aml-ingress-nginx"
 ```
 
-----compute------
+## Attaching Kubernetes Compute Target ##
+
 ```
 az ml compute attach --resource-group $RESOURCE_GROUP_NAME \
                      --workspace-name $WORKSPACE_NAME \
@@ -38,7 +41,9 @@ az ml compute attach --resource-group $RESOURCE_GROUP_NAME \
                      --namespace $NAMESPACE \
                      --no-wait
 ```
-----endpoint------
+## Deploying Online Endpoint ##
+
+The next step is to create a kubernetes online endpoint which is abstraction of the model inference server. Under one endpoint, we can deploy different versions of our model as "deployments".
 
 ```
 az ml online-endpoint create --resource-group $RESOURCE_GROUP_NAME \
@@ -48,7 +53,16 @@ az ml online-endpoint create --resource-group $RESOURCE_GROUP_NAME \
                              --no-wait
 ```
 
-----deployment-blue----
+## Deploying Online Deployment ##
+
+Now that we have an endpoint created, its time to deploy the model inference server. The deployment will need the model files and a container base environment before creation. We have two options:
+We can pre-create both the model and environment in the Azure ML workspace or through SDKs. 
+We can also, upload model files and specify base container environment in at the time of creating the deployment.
+
+For simplicity, lets create the model and environment at deployment creation.
+
+To be able to upload the model and other related files, make sure the identity running az cli has the following role on the ML workspace's storage account: Storage Blob Data Contributor.
+
 ```
 az ml online-deployment create --file $DEPLOYMENT_YAML_FILE \
                                --resource-group $RESOURCE_GROUP_NAME \
@@ -61,7 +75,9 @@ az ml online-deployment create --file $DEPLOYMENT_YAML_FILE \
 ```
 
 
----update endpoint traffic-------
+## Updating Traffic Allocation ##
+
+When the onlineDeployment was created, the traffic allocation was set to 0%. We need to update the online endpoint to send 100% of the traffic to the deployment. If we have more than one deployment under the same endpoint, we can allocate traffic appropriately such as in a blue-green set up.
 
 ```
 az ml online-endpoint update --resource-group $RESOURCE_GROUP_NAME \
