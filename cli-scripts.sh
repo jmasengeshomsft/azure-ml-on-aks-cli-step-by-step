@@ -8,7 +8,7 @@ CLUSTER_RESOURCE_ID=$(az aks show -n $CLUSTER_NAME -g $RESOURCE_GROUP_NAME  --qu
 NODE_POOL_NAME="sklearnpool"
 NODE_POOL_LABEL="purpose=ml-sklearn-demo"
 NODE_COUNT=2  # Change as needed
-VM_SIZE="Standard_D4ds_v5"  # A100 VM SKU, change as needed
+VM_SIZE="Standard_D4ds_v5"  
 MAX_PODS=110  # Change as needed
 ENDPOINT_NAME="demo-sklearn-endpoint"
 ENDPOINT_YAML_FILE="kubernetes-endpoint.yml"
