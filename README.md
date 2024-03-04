@@ -103,3 +103,71 @@ az ml online-endpoint update --resource-group $RESOURCE_GROUP_NAME \
                              --name $ENDPOINT_NAME \
                              --traffic "$DEPLOYMENT_NAME=100"
 ```
+
+
+
+Determining workspace structure
+
+Deciding which workspace information to collect
+
+Gathering workspace info
+
+Sure, here's a simplified version of the [`publication.md`](command:_github.copilot.openRelativePath?%5B%22publication.md%22%5D "publication.md") content, converted into a README format:
+
+# Azure Machine Learning Service for Kubernetes Architects: Deploy Your First Model on AKS with AZ CLI v2
+
+This tutorial teaches you how to deploy your first ML model on AKS using Azure CLI v2 (az ml). We will deploy a trained regression model based on the MNIST Dataset, created using the scikit-learn framework.
+
+## Prerequisites
+
+- A machine learning workspace.
+- A Kubernetes cluster. At minimum, you need a system node pool. Optionally, you can create a dedicated node pool for this lab.
+- az ml CLI (v2).
+- Github Repository: All the scripts used in this lab are available in this repo.
+
+## Setup
+
+Clone the repository:
+
+```sh
+git clone https://github.com/jmasengeshomsft/azure-ml-on-aks-cli-step-by-step.git
+```
+
+## Folder Structure
+
+- [`model/conda.yml`](command:_github.copilot.openRelativePath?%5B%22model%2Fconda.yml%22%5D "model/conda.yml"): Dependency files for the container image
+- [`model/sklearn_mnist_model.pkl`](command:_github.copilot.openRelativePath?%5B%22model%2Fsklearn_mnist_model.pkl%22%5D "model/sklearn_mnist_model.pkl"): The actual sklearn format model file
+- [`script/score.py`](command:_github.copilot.openRelativePath?%5B%22script%2Fscore.py%22%5D "script/score.py"): The model scoring file
+- [`cli-scripts.sh`](command:_github.copilot.openRelativePath?%5B%22cli-scripts.sh%22%5D "cli-scripts.sh"): A list of the az cli commands that will be used
+- `kubernetes-deployment.yml`: A schema for the ML online deployment
+- `kubernetes-endpoint.yml`: A schema for the ML online endpoint
+- [`sample-request.json`](command:_github.copilot.openRelativePath?%5B%22sample-request.json%22%5D "sample-request.json"): Sample request body to be used to test the model
+
+## Setting Up Variables
+
+Set up the necessary variables for your deployment. You can change these as needed.
+
+```sh
+COMPUTE_NAME="demo-k8s-compute"
+RESOURCE_GROUP_NAME="aks-demos"
+WORKSPACE_NAME="jm-ml"
+CLUSTER_NAME="ml-sklearn-demo"
+NAMESPACE="azureml-workloads"
+NODE_POOL_NAME="sklearnpool"
+NODE_POOL_LABEL="purpose=ml-sklearn-demo"
+NODE_COUNT=2
+VM_SIZE="Standard_D4ds_v5"  
+MAX_PODS=110
+ENDPOINT_NAME="demo-sklearn-endpoint"
+ENDPOINT_YAML_FILE="kubernetes-endpoint.yml"
+DEPLOYMENT_NAME="demo-sklearn-deployment"
+DEPLOYMENT_YAML_FILE="kubernetes-deployment.yml"
+```
+
+## Creating a new node pool (optional)
+
+If you prefer to use a new dedicated node pool for this lab, create a new node pool. If you want to use your existing node pools, remember to remove the nodeSelector on the extension and instance type.
+
+## Deploying the OnlineDeployment with CLI
+
+To be able to upload the model and other related files, make sure the identity running az cli has the following role on the ML workspace’s storage account: Storage Blob Data Contributor.
